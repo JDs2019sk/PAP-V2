@@ -1,1 +1,1 @@
-import pySerial
+import serial
