@@ -1,6 +1,8 @@
 import cv2
 import mediapipe as mp
 import numpy as np
+import time
+from collections import deque
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
@@ -22,13 +24,48 @@ def get_angle(a, b, c):
         angle = 360 - angle
     return angle
 
+def finger_is_closed(finger_tip, finger_base, palm_center, threshold=0.1):
+    tip_distance = np.linalg.norm(np.array([finger_tip.x, finger_tip.y]) - np.array([palm_center.x, palm_center.y]))
+    base_distance = np.linalg.norm(np.array([finger_base.x, finger_base.y]) - np.array([palm_center.x, palm_center.y]))
+    return tip_distance < base_distance + threshold
+
+def recognize_letter(landmarks):
+    thumb_tip, thumb_ip, thumb_mcp = landmarks[4], landmarks[3], landmarks[2]
+    index_tip, index_pip, index_mcp = landmarks[8], landmarks[7], landmarks[5]
+    middle_tip, middle_pip, middle_mcp = landmarks[12], landmarks[11], landmarks[9]
+    ring_tip, ring_pip, ring_mcp = landmarks[16], landmarks[15], landmarks[13]
+    pinky_tip, pinky_pip, pinky_mcp = landmarks[20], landmarks[19], landmarks[17]
+    wrist = landmarks[0]
+
+    def finger_is_closed(tip, pip, mcp, threshold=0.05):
+        return distance(tip, wrist) < distance(pip, wrist) + threshold
+
+    def distance(p1, p2):
+        return np.linalg.norm(np.array([p1.x, p1.y, p1.z]) - np.array([p2.x, p2.y, p2.z]))
+
+    def is_horizontal(p1, p2, threshold=0.1):
+        return abs(p1.y - p2.y) < threshold
+
+    def is_vertical(p1, p2, threshold=0.1):
+        return abs(p1.x - p2.x) < threshold
+
+    # Add your letter recognition logic here
+    return "?" # Placeholder return value
+
+
 def main():
     cap = cv2.VideoCapture(0)
     hands = mp_hands.Hands()
     button_position = (10, 10)
     button_size = (100, 40)
 
+    # FPS calculation variables
+    fps_frames = deque(maxlen=30)  # Store frame times for the last 30 frames
+    fps = 0
+
     while True:
+        frame_start_time = time.time()
+
         success, image = cap.read()
         if not success:
             print("webcam?!?!?!?")
@@ -47,6 +84,7 @@ def main():
                     mp_hands.HAND_CONNECTIONS)
 
                 landmarks = hand_landmarks.landmark
+                letter = recognize_letter(landmarks)
 
                 x_coords = [landmark.x for landmark in landmarks]
                 y_coords = [landmark.y for landmark in landmarks]
@@ -56,8 +94,20 @@ def main():
                 bbox_start = (int(x_min * w), int(y_min * h))
                 bbox_end = (int(x_max * w), int(y_max * h))
                 cv2.rectangle(image, bbox_start, bbox_end, (0, 255, 0), 2)
+                cv2.putText(image, f"{hand_label} Hand: Letter {letter}", (bbox_start[0], bbox_start[1] - 10),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
         create_button(image, "fixe", button_position, button_size)
+
+        # Calculate real-time FPS
+        frame_end_time = time.time()
+        fps_frames.append(frame_end_time - frame_start_time)
+        if len(fps_frames) == 30:
+            fps = int(30 / sum(fps_frames))
+
+        # Display FPS
+        cv2.putText(image, f"FPS: {fps}", (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+
         cv2.imshow('camera', image)
 
         key = cv2.waitKey(1) & 0xFF
