@@ -22,11 +22,6 @@ def get_angle(a, b, c):
         angle = 360 - angle
     return angle
 
-def finger_is_closed(finger_tip, finger_base, palm_center, threshold=0.1):
-    tip_distance = np.linalg.norm(np.array([finger_tip.x, finger_tip.y]) - np.array([palm_center.x, palm_center.y]))
-    base_distance = np.linalg.norm(np.array([finger_base.x, finger_base.y]) - np.array([palm_center.x, palm_center.y]))
-    return tip_distance < base_distance + threshold
-
 def main():
     cap = cv2.VideoCapture(0)
     hands = mp_hands.Hands()
