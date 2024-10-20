@@ -49,8 +49,8 @@ def recognize_letter(landmarks):
     def is_vertical(p1, p2, threshold=0.1):
         return abs(p1.x - p2.x) < threshold
 
-    # Add your letter recognition logic here
-    return "?" # Placeholder return value
+
+    return "?" 
 
 
 def main():
@@ -59,8 +59,8 @@ def main():
     button_position = (10, 10)
     button_size = (100, 40)
 
-    # FPS calculation variables
-    fps_frames = deque(maxlen=30)  # Store frame times for the last 30 frames
+
+    fps_frames = deque(maxlen=30)  
     fps = 0
 
     while True:
