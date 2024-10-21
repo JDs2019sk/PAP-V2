@@ -94,7 +94,7 @@ def main():
 
         create_button(image, "fixe", button_position, button_size)
 
-        # Calculate real-time FPS
+        
         frame_end_time = time.time()
         fps_frames.append(frame_end_time - frame_start_time)
         if len(fps_frames) == 30:
