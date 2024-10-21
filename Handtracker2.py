@@ -48,17 +48,12 @@ def recognize_letter(landmarks):
 
     def is_vertical(p1, p2, threshold=0.1):
         return abs(p1.x - p2.x) < threshold
-
-
-    return "?" 
-
-
+    
 def main():
     cap = cv2.VideoCapture(0)
     hands = mp_hands.Hands()
     button_position = (10, 10)
     button_size = (100, 40)
-
 
     fps_frames = deque(maxlen=30)  
     fps = 0
