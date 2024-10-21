@@ -48,7 +48,9 @@ def recognize_letter(landmarks):
 
     def is_vertical(p1, p2, threshold=0.1):
         return abs(p1.x - p2.x) < threshold
-    
+    return "?" # Placeholder return value
+
+
 def main():
     cap = cv2.VideoCapture(0)
     hands = mp_hands.Hands()
@@ -100,7 +102,6 @@ def main():
         if len(fps_frames) == 30:
             fps = int(30 / sum(fps_frames))
 
-        # Display FPS
         cv2.putText(image, f"FPS: {fps}", (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
         cv2.imshow('camera', image)
